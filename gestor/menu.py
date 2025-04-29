@@ -1,34 +1,40 @@
 import helpers
 import database as db
 
+def listar_clientes():
+    print("Listando los clientes...\n")
+    for cliente in db.Clientes.lista:
+        print(cliente)
+
+def buscar_cliente():
+    print("Buscando un cliente...\n")
+    dni = helpers.leer_texto(3, 3, "DNI (2 ints y 1 char)").upper()
+    cliente = db.Clientes.buscar(dni)
+    print(cliente) if cliente else print("Cliente no encontrado.")
+
 def iniciar():
     while True:
         helpers.limpiar_pantalla()
-        print("Gestor de Clientes")
-        print("==================")
-        print("[1] Listar clientes")
-        print("[2] Buscar cliente")
-        print("[3] Añadir cliente")
-        print("[4] Modificar cliente")
-        print("[5] Borrar cliente")
-        print("[6] Salir")
-        print("------------------")
+        print("========================")
+        print(" BIENVENIDO AL Manager ")
+        print("========================")
+        print("[1] Listar clientes ")
+        print("[2] Buscar cliente ")
+        print("[3] Añadir cliente ")
+        print("[4] Modificar cliente ")
+        print("[5] Borrar cliente ")
+        print("[6] Cerrar el Manager ")
+        print("========================")
         opcion = input("> ")
+        helpers.limpiar_pantalla()
 
         if opcion == '1':
-            print("Listando los clientes...\n")
-            for cliente in db.Clientes.lista:
-                print(cliente)
-
+            listar_clientes()
         elif opcion == '2':
-            print("Buscando un cliente...\n")
-            dni = helpers.leer_texto(3, 3, "DNI (2 ints y 1 char)").upper()
-            cliente = db.Clientes.buscar(dni)
-            print(cliente) if cliente else print("Cliente no encontrado.")
-
+            buscar_cliente()
         elif opcion == '3':
             print("Añadiendo un cliente...\n")
-            while 1:
+            while True:
                 dni = helpers.leer_texto(3, 3, "DNI (2 ints y 1 char)").upper()
                 if helpers.dni_valido(dni, db.Clientes.lista):
                     break
@@ -36,7 +42,6 @@ def iniciar():
             apellido = helpers.leer_texto(2, 30, "Apellido (de 2 a 30 chars)").capitalize()
             db.Clientes.crear(dni, nombre, apellido)
             print("Cliente añadido correctamente.")
-
         elif opcion == '4':
             print("Modificando un cliente...\n")
             dni = helpers.leer_texto(3, 3, "DNI (2 ints y 1 char)").upper()
@@ -48,18 +53,14 @@ def iniciar():
                 print("Cliente modificado correctamente.")
             else:
                 print("Cliente no encontrado.")
-
         elif opcion == '5':
             print("Borrando un cliente...\n")
             dni = helpers.leer_texto(3, 3, "DNI (2 ints y 1 char)").upper()
-            if db.Clientes.borrar(dni):
-                print("Cliente borrado correctamente.")
-            else:
-                print("Cliente no encontrado.")
-
+            print("Cliente borrado correctamente.") if db.Clientes.borrar(dni) else print("Cliente no encontrado.")
         elif opcion == '6':
             print("Saliendo...\n")
             break
-
         else:
-            print("Opción incorrecta.")
+            print("Opción no válida.")
+
+        input("\nPresiona ENTER para continuar...")

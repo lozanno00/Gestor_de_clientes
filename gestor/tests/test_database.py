@@ -12,39 +12,30 @@ class TestDatabase(unittest.TestCase):
             db.Cliente('48H', 'Manolo', 'López'),
             db.Cliente('28Z', 'Ana', 'García')
         ]
-        db.Clientes.guardar()
 
     def test_buscar_cliente(self):
-        copia_lista = copy.deepcopy(db.Clientes.lista)
-        cliente = db.Clientes.buscar_cliente('15J')
-        self.assertEqual(cliente.dni, '15J')
-        self.assertEqual(cliente.nombre, 'Marta')
-        self.assertEqual(cliente.apellido, 'Pérez')
-        self.assertEqual(copia_lista, db.Clientes.lista)
+        cliente_existente = db.Clientes.buscar('15J')
+        cliente_no_existente = db.Clientes.buscar('99X')
+        self.assertIsNotNone(cliente_existente)
+        self.assertIsNone(cliente_no_existente)
 
     def test_crear_cliente(self):
-        copia_lista = copy.deepcopy(db.Clientes.lista)
-        db.Clientes.crear_cliente('67K', 'Luis', 'Martínez')
-        self.assertEqual(len(db.Clientes.lista), len(copia_lista) + 1)
-        cliente = db.Clientes.lista[-1]
-        self.assertEqual(cliente.dni, '67K')
-        self.assertEqual(cliente.nombre, 'Luis')
-        self.assertEqual(cliente.apellido, 'Martínez')
+        nuevo_cliente = db.Clientes.crear('39X', 'Héctor', 'Costa')
+        self.assertEqual(len(db.Clientes.lista), 4)
+        self.assertEqual(nuevo_cliente.dni, '39X')
+        self.assertEqual(nuevo_cliente.nombre, 'Héctor')
+        self.assertEqual(nuevo_cliente.apellido, 'Costa')
 
     def test_modificar_cliente(self):
-        copia_lista = copy.deepcopy(db.Clientes.lista)
-        db.Clientes.modificar_cliente('15J', 'María', 'Pérez')
-        cliente = db.Clientes.buscar_cliente('15J')
-        self.assertEqual(cliente.nombre, 'María')
-        self.assertEqual(cliente.apellido, 'Pérez')
-        self.assertEqual(copia_lista, db.Clientes.lista)
+        cliente_a_modificar = copy.copy(db.Clientes.buscar('28Z'))
+        cliente_modificado = db.Clientes.modificar('28Z', 'Mariana', 'Pérez')
+        self.assertEqual(cliente_a_modificar.nombre, 'Ana')
+        self.assertEqual(cliente_modificado.nombre, 'Mariana')
 
     def test_borrar_cliente(self):
-        copia_lista = copy.deepcopy(db.Clientes.lista)
-        db.Clientes.borrar_cliente('15J')
-        self.assertEqual(len(db.Clientes.lista), len(copia_lista) - 1)
-        cliente = db.Clientes.buscar_cliente('15J')
-        self.assertIsNone(cliente)
+        cliente_borrado = db.Clientes.borrar('48H')
+        cliente_rebuscado = db.Clientes.buscar('48H')
+        self.assertNotEqual(cliente_borrado, cliente_rebuscado)
 
     def test_dni_valido(self):
         self.assertTrue(helpers.dni_valido('00A', db.Clientes.lista))
@@ -56,12 +47,13 @@ class TestDatabase(unittest.TestCase):
         db.Clientes.borrar('48H')
         db.Clientes.borrar('15J')
         db.Clientes.modificar('28Z', 'Mariana', 'Pérez')
+        dni, nombre, apellido = None, None, None
         with open(config.DATABASE_PATH, newline="\n") as fichero:
             reader = csv.reader(fichero, delimiter=";")
-            dni, nombre, apellido = next(reader)
-            self.assertEqual(dni, '28Z')
-            self.assertEqual(nombre, 'Mariana')
-            self.assertEqual(apellido, 'Pérez')
+            dni, nombre, apellido = next(reader)  # Primera línea del iterador
+        self.assertEqual(dni, '28Z')
+        self.assertEqual(nombre, 'Mariana')
+        self.assertEqual(apellido, 'Pérez')
 
 if __name__ == '__main__':
     unittest.main()

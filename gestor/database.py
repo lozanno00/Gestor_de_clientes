@@ -10,13 +10,18 @@ class Cliente:
     def __str__(self):
         return f"({self.dni}) {self.nombre} {self.apellido}"
 
+
 class Clientes:
     lista = []
-    with open(config.DATABASE_PATH, newline="\n") as fichero:
-        reader = csv.reader(fichero, delimiter=";")
-        for dni, nombre, apellido in reader:
-            cliente = Cliente(dni, nombre, apellido)
-            lista.append(cliente)
+    try:
+        with open(config.DATABASE_PATH, newline="\n") as fichero:
+            reader = csv.reader(fichero, delimiter=";")
+            for dni, nombre, apellido in reader:
+                cliente = Cliente(dni, nombre, apellido)
+                lista.append(cliente)
+    except FileNotFoundError:
+        # If the file doesn't exist, initialize an empty list
+        lista = []
 
     @staticmethod
     def guardar():
@@ -30,28 +35,27 @@ class Clientes:
         for cliente in Clientes.lista:
             if cliente.dni == dni:
                 return cliente
-        return None
 
     @staticmethod
     def crear(dni, nombre, apellido):
         cliente = Cliente(dni, nombre, apellido)
         Clientes.lista.append(cliente)
         Clientes.guardar()
+        return cliente
 
     @staticmethod
     def modificar(dni, nombre, apellido):
         for i, cliente in enumerate(Clientes.lista):
             if cliente.dni == dni:
-                Clientes.lista[i] = Cliente(dni, nombre, apellido)
+                Clientes.lista[i].nombre = nombre
+                Clientes.lista[i].apellido = apellido
                 Clientes.guardar()
-                return True
-        return False
+                return Clientes.lista[i]
 
     @staticmethod
     def borrar(dni):
         for i, cliente in enumerate(Clientes.lista):
             if cliente.dni == dni:
-                del Clientes.lista[i]
+                cliente = Clientes.lista.pop(i)
                 Clientes.guardar()
-                return True
-        return False
+                return cliente
